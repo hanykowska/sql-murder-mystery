@@ -1,0 +1,124 @@
+/*Solution to The SQL Murder Mystery on https://mystery.knightlab.com/#experienced */
+
+
+/*Retrieve crime scene report
+select * 
+from crime_scene_report
+where city == "SQL City"
+	and type == "murder"
+	and crime_scene_report.date == '20180115'; */
+/* Result:
+Security footage shows that there were 2 witnesses. 
+The first witness lives at the last house on "Northwestern Dr". 
+The second witness, named Annabel, lives somewhere on "Franklin Ave". */
+           
+/*find witnesses */		  
+/*
+select * from person
+where address_street_name == "Northwestern Dr"
+order by address_number desc
+limit 1;       */  
+/* id	name	license_id	address_number	address_street_name	ssn
+14887	Morty Schapiro	118009	4919	Northwestern Dr	111564949 */
+
+/*
+select * from person
+where address_street_name == "Franklin Ave"
+and name like "Annabel%"; 
+id	name	license_id	address_number	address_street_name	ssn
+16371	Annabel Miller	490173	103	Franklin Ave	318771143 */
+
+
+/* find details from interview
+select *
+from interview
+where person_id in (14887,16371);
+
+14887	I heard a gunshot and then saw a man run out. 
+He had a "Get Fit Now Gym" bag. The membership number on the bag started with "48Z". 
+Only gold members have those bags. 
+The man got into a car with a plate that included "H42W".
+16371	I saw the murder happen, and I recognized the killer from my gym 
+when I was working out last week on January the 9th. */
+     
+	/*
+select *
+from get_fit_now_member;
+select *
+from drivers_license
+where plate_number like "%H42W%";
+*/
+
+/*
+select *
+from get_fit_now_member as m
+inner join drivers_license as d
+on m.person_id = d.id
+where m.id like "48Z%"
+	and d.plate_number like "%H42W%";
+
+select *
+from get_fit_now_member as m
+
+inner join get_fit_now_check_in as c
+on m.id = c.membership_id
+
+
+where m.id like "48Z%"
+	and m.membership_status == "gold"
+	and c.check_in_date == "20180109"
+;
+*/
+/*
+id	person_id	name	membership_start_date	membership_status	membership_id	check_in_date	check_in_time	check_out_time
+48Z7A	28819	Joe Germuska	20160305	gold	48Z7A	20180109	1600	1730
+48Z55	67318	Jeremy Bowers	20160101	gold	48Z55	20180109	1530	1700
+*/
+
+/* see who was interviewed that matches the description and what they said 
+select *
+from interview
+
+where person_id in (28819, 67318);
+
+person_id	transcript
+67318	I was hired by a woman with a lot of money. 
+I don't know her name but I know she's around 5'5" (65") or 5'7" (67"). 
+She has red hair and she drives a Tesla Model S. 
+I know that she attended the SQL Symphony Concert 3 times in December 2017.
+*/
+/*
+select f.person_id, f.event_name, count(f.date) as visits
+from facebook_event_checkin as f
+where f.date like "201712%"
+	and f.event_name like "%Symphony Concert%"
+group by f.person_id, f.event_name
+having visits >= 3
+limit 5;*/
+/*
+person_id	event_name	visits
+24556	SQL Symphony Concert	3
+99716	SQL Symphony Concert	3
+*/
+/*
+select *
+from income
+limit 5;
+*/
+/*
+select *
+from person
+where id in (24556, 99716);
+
+select * 
+from drivers_license 
+where height >= 65 and height <= 67
+	and hair_color == "red"
+	and car_make == "Tesla"
+	and car_model like "Model S";
+*/	
+	
+/* Solution:
+99716	Miranda Priestly	202298	1883	Golden Ave	987756388
+*/
+
